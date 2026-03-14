@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 import yt_dlp
 import os
 
@@ -23,12 +23,11 @@ def home():
         }
 
         try:
-
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
 
-            video = filename.split("/")[-1]
+            video = os.path.basename(filename)
 
             return render_template("video.html", video=video)
 
@@ -38,11 +37,11 @@ def home():
     return render_template("index.html")
 
 
-@app.route("/downloads/<file>")
-def downloads(file):
-    return app.send_static_file(f"../downloads/{file}")
+@app.route("/downloads/<path:filename>")
+def download_file(filename):
+    return send_from_directory(DOWNLOAD_FOLDER, filename)
 
 
-port = int(os.environ.get("PORT",8080))
+port = int(os.environ.get("PORT", 8080))
 
-app.run(host="0.0.0.0",port=port)
+app.run(host="0.0.0.0", port=port)
