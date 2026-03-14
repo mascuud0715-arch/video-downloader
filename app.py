@@ -1,65 +1,86 @@
 import os
-import uuid
-from flask import Flask, render_template, request, send_from_directory
-import yt_dlp
+import json
+import requests
+from datetime import datetime
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# Folder videos lagu kaydiyo
-DOWNLOAD_FOLDER = "downloads"
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+# ================= FILES =================
+
+HISTORY_FILE = "history.json"
+
+if not os.path.exists(HISTORY_FILE):
+    with open(HISTORY_FILE, "w") as f:
+        json.dump([], f)
 
 
-# Home page
+# ================= HOME =================
+
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-# Download video
+# ================= DOWNLOAD =================
+
 @app.route("/download", methods=["POST"])
 def download():
 
     url = request.form.get("url")
 
     if not url:
-        return "Link geli"
+        return "Please paste TikTok link"
 
-    video_id = str(uuid.uuid4())[:8]
-    filename = f"{video_id}.mp4"
-    filepath = os.path.join(DOWNLOAD_FOLDER, filename)
+    api = f"https://tikwm.com/api/?url={url}"
 
-    ydl_opts = {
-        "outtmpl": filepath,
-        "format": "bestvideo+bestaudio/best",
-        "merge_output_format": "mp4",
-        "quiet": True,
-        "noplaylist": True
-    }
+    r = requests.get(api).json()
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
+    video = r["data"]["play"]
+    title = r["data"]["title"]
+    thumbnail = r["data"]["cover"]
 
-            title = info.get("title")
-            thumbnail = info.get("thumbnail")
-
-    except Exception as e:
-        return f"Download error: {e}"
+    save_history(url, title, thumbnail, video)
 
     return render_template(
         "video.html",
-        filename=filename,
+        video=video,
         title=title,
         thumbnail=thumbnail
     )
 
 
-# Video serve
-@app.route("/downloads/<filename>")
-def downloads(filename):
-    return send_from_directory(DOWNLOAD_FOLDER, filename)
+# ================= SAVE HISTORY =================
 
+def save_history(url, title, thumbnail, video):
+
+    with open(HISTORY_FILE) as f:
+        data = json.load(f)
+
+    data.insert(0, {
+        "url": url,
+        "title": title,
+        "thumbnail": thumbnail,
+        "video": video,
+        "time": datetime.now().strftime("%I:%M %p")
+    })
+
+    with open(HISTORY_FILE, "w") as f:
+        json.dump(data, f)
+
+
+# ================= DOWNLOADS PAGE =================
+
+@app.route("/downloads")
+def downloads():
+
+    with open(HISTORY_FILE) as f:
+        data = json.load(f)
+
+    return render_template("downloads.html", data=data)
+
+
+# ================= RUN =================
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
