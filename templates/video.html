@@ -1,26 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Your Video</title>
+
+<style>
+
+body{
+background:#0a1a2f;
+color:white;
+font-family:Arial;
+text-align:center;
+margin:0;
+}
+
+.container{
+padding:20px;
+}
+
+.video-box{
+background:#111;
+padding:15px;
+border-radius:15px;
+margin-top:20px;
+}
+
+video{
+width:100%;
+border-radius:10px;
+}
+
+.btn{
+background:#4a86e8;
+border:none;
+padding:15px;
+width:90%;
+color:white;
+font-size:18px;
+border-radius:30px;
+margin-top:20px;
+}
+
+.bottom{
+position:fixed;
+bottom:0;
+width:100%;
+background:#081425;
+display:flex;
+justify-content:space-around;
+padding:15px 0;
+}
+
+a{
+color:white;
+text-decoration:none;
+}
+
+</style>
+
 </head>
 
-<body style="text-align:center;font-family:Arial">
+<body>
+
+<div class="container">
 
 <h2>Your Video</h2>
 
-<video width="320" controls>
+<div class="video-box">
+
+<video controls>
 <source src="/downloads/{{video}}">
 </video>
 
-<br><br>
+</div>
 
 <a href="/downloads/{{video}}" download>
-<button>Download Video</button>
+<button class="btn">Download Video</button>
 </a>
 
-<br><br>
+</div>
 
-<a href="/">Back</a>
+<div class="bottom">
+
+<a href="/">Home</a>
+
+<a href="/downloads">Downloads</a>
+
+</div>
 
 </body>
 </html>
