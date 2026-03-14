@@ -3,7 +3,8 @@ import yt_dlp
 import os
 import uuid
 
-app = Flask(__name__)
+if not os.path.exists("downloads"):
+    os.makedirs("downloads")
 
 DOWNLOAD_FOLDER = "downloads"
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
