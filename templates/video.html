@@ -1,94 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Video Downloader</title>
+<title>Your Video</title>
 
 <style>
 
 body{
-background:#0a1a2f;
-font-family:Arial;
+background:#0b132b;
 color:white;
 text-align:center;
-margin:0;
+font-family:Arial;
 }
 
-.container{
-padding:30px;
-}
-
-h1{
+.video-box{
 margin-top:40px;
 }
 
-input{
-width:90%;
-padding:15px;
-border-radius:25px;
-border:none;
-font-size:16px;
-margin-top:20px;
+img{
+width:300px;
+border-radius:10px;
+margin-bottom:15px;
+}
+
+video{
+width:320px;
+border-radius:10px;
 }
 
 button{
-background:#4a86e8;
-border:none;
-padding:15px;
-width:90%;
-color:white;
-font-size:18px;
-border-radius:30px;
 margin-top:20px;
-}
-
-.bottom{
-position:fixed;
-bottom:0;
-width:100%;
-background:#081425;
-display:flex;
-justify-content:space-around;
-padding:15px 0;
-}
-
-a{
+padding:12px 30px;
+border:none;
+border-radius:30px;
+background:#3b82f6;
 color:white;
-text-decoration:none;
+font-size:16px;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<div class="container">
+<h2>{{ title }}</h2>
 
-<h1>Video Downloader</h1>
+<div class="video-box">
 
-<p>Paste TikTok, Instagram or Pinterest link</p>
-
-<form method="POST">
-
-<input type="text" name="url" placeholder="Paste video link here..." required>
+<img src="{{ thumbnail }}">
 
 <br>
 
-<button type="submit">Download</button>
+<video controls>
+<source src="/downloads/{{ filename }}" type="video/mp4">
+</video>
 
-</form>
+<br>
 
-</div>
-
-<div class="bottom">
-
-<a href="/">Home</a>
-
-<a href="/downloads">Downloads</a>
+<a href="/downloads/{{ filename }}" download>
+<button>Download Video</button>
+</a>
 
 </div>
 
