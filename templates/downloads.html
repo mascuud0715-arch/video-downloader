@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Downloads</title>
+</head>
+
+<body style="text-align:center;font-family:Arial">
+
+<h2>Downloaded Videos</h2>
+
+{% for file in files %}
+
+<p>
+<a href="/downloads/{{file}}" download>
+{{file}}
+</a>
+</p>
+
+{% endfor %}
+
+<br>
+<a href="/">⬅ Back</a>
+
+</body>
+</html>
