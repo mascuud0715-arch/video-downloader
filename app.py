@@ -1,86 +1,61 @@
+from flask import Flask, render_template, request, redirect, send_from_directory
+import yt_dlp
 import os
-import json
-import requests
-from datetime import datetime
-from flask import Flask, render_template, request
+import uuid
 
 app = Flask(__name__)
 
-# ================= FILES =================
+DOWNLOAD_FOLDER = "downloads"
 
-HISTORY_FILE = "history.json"
+if not os.path.exists(DOWNLOAD_FOLDER):
+    os.makedirs(DOWNLOAD_FOLDER)
 
-if not os.path.exists(HISTORY_FILE):
-    with open(HISTORY_FILE, "w") as f:
-        json.dump([], f)
-
-
-# ================= HOME =================
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-# ================= DOWNLOAD =================
-
 @app.route("/download", methods=["POST"])
 def download():
 
-    url = request.form.get("url")
+    url = request.form["url"]
 
-    if not url:
-        return "Please paste TikTok link"
+    filename = str(uuid.uuid4()) + ".mp4"
 
-    api = f"https://tikwm.com/api/?url={url}"
+    path = os.path.join(DOWNLOAD_FOLDER, filename)
 
-    r = requests.get(api).json()
+    ydl_opts = {
+        "format": "mp4",
+        "outtmpl": path
+    }
 
-    video = r["data"]["play"]
-    title = r["data"]["title"]
-    thumbnail = r["data"]["cover"]
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+    except:
+        return "Download error"
 
-    save_history(url, title, thumbnail, video)
-
-    return render_template(
-        "video.html",
-        video=video,
-        title=title,
-        thumbnail=thumbnail
-    )
+    return redirect("/video/" + filename)
 
 
-# ================= SAVE HISTORY =================
-
-def save_history(url, title, thumbnail, video):
-
-    with open(HISTORY_FILE) as f:
-        data = json.load(f)
-
-    data.insert(0, {
-        "url": url,
-        "title": title,
-        "thumbnail": thumbnail,
-        "video": video,
-        "time": datetime.now().strftime("%I:%M %p")
-    })
-
-    with open(HISTORY_FILE, "w") as f:
-        json.dump(data, f)
+@app.route("/video/<filename>")
+def video(filename):
+    return render_template("video.html", video=filename)
 
 
-# ================= DOWNLOADS PAGE =================
+@app.route("/downloads/<path:filename>")
+def file(filename):
+    return send_from_directory(DOWNLOAD_FOLDER, filename)
+
 
 @app.route("/downloads")
 def downloads():
 
-    with open(HISTORY_FILE) as f:
-        data = json.load(f)
+    files = os.listdir(DOWNLOAD_FOLDER)
 
-    return render_template("downloads.html", data=data)
+    return render_template("downloads.html", files=files)
 
-
-# ================= RUN =================
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=8080)
