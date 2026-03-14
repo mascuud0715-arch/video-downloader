@@ -1,25 +1,61 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="en">
 <head>
-<title>Downloads</title>
-</head>
+<meta charset="UTF-8">
+<title>Downloads</title><style>
+body{
+text-align:center;
+font-family:Arial, sans-serif;
+background:#0f172a;
+color:white;
+margin:0;
+padding:20px;
+}
 
-<body style="text-align:center;font-family:Arial">
+h2{
+margin-bottom:30px;
+}
 
-<h2>Downloaded Videos</h2>
+.file{
+background:#1e293b;
+margin:10px auto;
+padding:12px;
+width:300px;
+border-radius:8px;
+}
+
+a{
+color:#60a5fa;
+text-decoration:none;
+font-size:16px;
+}
+
+a:hover{
+text-decoration:underline;
+}
+
+.back{
+display:inline-block;
+margin-top:25px;
+padding:10px 15px;
+background:#2563eb;
+border-radius:6px;
+color:white;
+}
+</style></head><body><h2>Downloaded Videos</h2>{% if files %}
 
 {% for file in files %}
 
-<p>
-<a href="/downloads/{{file}}" download>
-{{file}}
+<div class="file">
+<a href="/downloads/{{ file }}" download>
+{{ file }}
 </a>
-</p>
+</div>{% endfor %}
 
-{% endfor %}
+{% else %}
 
-<br>
-<a href="/">⬅ Back</a>
+<p>No videos downloaded yet.</p>{% endif %}
+
+<br><a class="back" href="/">⬅ Back</a>
 
 </body>
 </html>
