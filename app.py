@@ -1,8 +1,14 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, redirect, url_for
 import yt_dlp
 import os
 
 app = Flask(__name__)
+
+DOWNLOAD_FOLDER = "downloads"
+
+if not os.path.exists(DOWNLOAD_FOLDER):
+    os.makedirs(DOWNLOAD_FOLDER)
+
 
 @app.route("/", methods=["GET","POST"])
 def home():
@@ -11,17 +17,16 @@ def home():
 
         url = request.form.get("url")
 
+        ydl_opts = {
+            "outtmpl": f"{DOWNLOAD_FOLDER}/%(title)s.%(ext)s",
+            "format": "best"
+        }
+
         try:
-            ydl_opts = {
-                "format": "best",
-                "outtmpl": "video.%(ext)s"
-            }
-
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                file = ydl.prepare_filename(info)
+                ydl.download([url])
 
-            return send_file(file, as_attachment=True)
+            return redirect("/downloads")
 
         except Exception as e:
             return str(e)
@@ -29,6 +34,20 @@ def home():
     return render_template("index.html")
 
 
-port = int(os.environ.get("PORT", 8080))
+@app.route("/downloads")
+def downloads():
 
-app.run(host="0.0.0.0", port=port)
+    files = os.listdir(DOWNLOAD_FOLDER)
+
+    return render_template("downloads.html", files=files)
+
+
+@app.route("/download/<name>")
+def download(name):
+
+    return redirect(f"/downloads/{name}")
+
+
+port = int(os.environ.get("PORT",8080))
+
+app.run(host="0.0.0.0",port=port)
